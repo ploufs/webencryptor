@@ -3,7 +3,7 @@
 #dotnet new web
 
 # Create 2 images for x64 and ARM64
-$registry = "ghcr.io"
+$registry = "docker.io"
 $image = "ploufs/webencryptor"
 $tag = "latest"
 
