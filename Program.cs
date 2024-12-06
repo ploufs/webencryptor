@@ -1,3 +1,5 @@
+using PgpCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ajout openApi
@@ -18,5 +20,16 @@ var app = builder.Build();
 app.MapOpenApi();
 
 app.MapGet("/", () => "Hello World!");
+
+app.MapGet("/PGPEncrypt", async (string filenamePublicKey,string text) =>
+{
+    // Load keys
+    var publicKey = File.ReadAllText($"PGPPublicKey\\{filenamePublicKey}");
+    var encryptionKeys = new EncryptionKeys(publicKey);
+
+    // Encrypt
+    var pgp = new PGP(encryptionKeys);
+    return  await pgp.EncryptAsync(text);
+});
 
 app.Run();
