@@ -17,6 +17,7 @@ builder.Services.AddOpenApi(options =>
 
 var app = builder.Build();
 
+
 // ajout openApi endpoint (/openapi/v1.json)
 app.MapOpenApi();
 
@@ -35,7 +36,12 @@ app.MapGet("/", () => Results.Redirect("/scalar/v1"));
 app.MapPost("/PGPEncrypt", async (string filenamePublicKey, string text) =>
 {
     // Load keys
-    var publicKey = File.ReadAllText($"PGPPublicKey\\{filenamePublicKey}");
+    var publicKeyFilename = Path.Combine("PGPPublicKey", filenamePublicKey);
+    if (!System.IO.File.Exists(publicKeyFilename))
+    {
+        throw new FileNotFoundException("publickey not found", publicKeyFilename);
+    }
+    var publicKey = File.ReadAllText(publicKeyFilename);
     var encryptionKeys = new EncryptionKeys(publicKey);
 
     // Encrypt
