@@ -1,6 +1,4 @@
 using PgpCore;
-using System.Net;
-using System;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,15 +27,12 @@ app.MapScalarApiReference(options =>
     options
         .WithTitle("webencryptor")
         .WithSidebar(true);
-
 });
 
 // redirect to scalar documentation
 app.MapGet("/", () => Results.Redirect("/scalar/v1"));
 
-app.MapGet("/helloword", () => "Hello World!");
-
-app.MapGet("/PGPEncrypt", async (string filenamePublicKey,string text) =>
+app.MapPost("/PGPEncrypt", async (string filenamePublicKey, string text) =>
 {
     // Load keys
     var publicKey = File.ReadAllText($"PGPPublicKey\\{filenamePublicKey}");
@@ -45,10 +40,10 @@ app.MapGet("/PGPEncrypt", async (string filenamePublicKey,string text) =>
 
     // Encrypt
     var pgp = new PGP(encryptionKeys);
-    return  await pgp.EncryptAsync(text);
+    return await pgp.EncryptAsync(text);
 });
 
-app.MapGet("/PGPEncryptFromProtonEmail", async (string protonEmail, string text) =>
+app.MapPost("/PGPEncryptFromProtonEmail", async (string protonEmail, string text) =>
 {
     var publicKey = string.Empty;
     // download proton plubic key (source: https://proton.me/support/download-public-private-key)
