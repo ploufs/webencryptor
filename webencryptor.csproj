@@ -16,4 +16,10 @@
     <PackageReference Include="PgpCore" Version="6.5.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="PGPPublicKey\readme.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
