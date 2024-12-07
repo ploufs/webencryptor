@@ -1,6 +1,7 @@
 using PgpCore;
 using System.Net;
 using System;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,19 @@ var app = builder.Build();
 
 // ajout openApi endpoint (/openapi/v1.json)
 app.MapOpenApi();
+
+// ajouter scalar (/scalar/v1)
+// source : https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md , https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/README.md)
+app.MapScalarApiReference(options =>
+{
+    options
+        .WithTitle("webencryptor")
+        .WithSidebar(true);
+
+});
+
+// redirect to scalar documentation
+app.MapGet("/", () => Results.Redirect("/scalar/v1"));
 
 app.MapGet("/helloword", () => "Hello World!");
 

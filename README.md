@@ -14,4 +14,5 @@ ASPNETCORE_HTTP_PORTS -> 8080
 `docker run -d --name=webencryptor -e TZ=America/Toronto -p 8080:8080 -v C:\PGPPublicKey:/app/PGPPublicKey ploufs/webencryptor:latest`
 
 ### api info
-http://localhost:8080/openapi/v1.json
+openapi : http://localhost:8080/openapi/v1.json
+scalar: http://localhost:8080/scalar/v1
