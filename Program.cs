@@ -1,4 +1,6 @@
 using PgpCore;
+using System.Net;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +21,7 @@ var app = builder.Build();
 // ajout openApi endpoint (/openapi/v1.json)
 app.MapOpenApi();
 
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/helloword", () => "Hello World!");
 
 app.MapGet("/PGPEncrypt", async (string filenamePublicKey,string text) =>
 {
@@ -30,6 +32,22 @@ app.MapGet("/PGPEncrypt", async (string filenamePublicKey,string text) =>
     // Encrypt
     var pgp = new PGP(encryptionKeys);
     return  await pgp.EncryptAsync(text);
+});
+
+app.MapGet("/PGPEncryptFromProtonEmail", async (string protonEmail, string text) =>
+{
+    var publicKey = string.Empty;
+    // download proton plubic key (source: https://proton.me/support/download-public-private-key)
+    using (var client = new HttpClient())
+    {
+        publicKey = await client.GetStringAsync($"https://mail-api.proton.me/pks/lookup?op=get&search={protonEmail}");
+    }
+
+    var encryptionKeys = new EncryptionKeys(publicKey);
+
+    // Encrypt
+    var pgp = new PGP(encryptionKeys);
+    return await pgp.EncryptAsync(text);
 });
 
 app.Run();

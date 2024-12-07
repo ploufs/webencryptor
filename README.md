@@ -12,3 +12,6 @@ ASPNETCORE_HTTP_PORTS -> 8080
 /app/PGPPublicKey -> pgp public key folder
 ### run image
 `docker run -d --name=webencryptor -e TZ=America/Toronto -p 8080:8080 -v C:\PGPPublicKey:/app/PGPPublicKey ploufs/webencryptor:latest`
+
+### api info
+http://localhost:8080/openapi/v1.json
