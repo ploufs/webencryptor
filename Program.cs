@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using PgpCore;
 using Scalar.AspNetCore;
 
@@ -15,8 +16,9 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
-var app = builder.Build();
 
+
+var app = builder.Build();
 
 // ajout openApi endpoint (/openapi/v1.json)
 app.MapOpenApi();
@@ -33,7 +35,7 @@ app.MapScalarApiReference(options =>
 // redirect to scalar documentation
 app.MapGet("/", () => Results.Redirect("/scalar/v1"));
 
-app.MapPost("/PGPEncrypt", async (string filenamePublicKey, string text) =>
+app.MapPost("/PGPEncrypt", async ([FromForm]string filenamePublicKey, [FromForm] string text) =>
 {
     // Load keys
     var publicKeyFilename = Path.Combine("PGPPublicKey", filenamePublicKey);
@@ -47,9 +49,9 @@ app.MapPost("/PGPEncrypt", async (string filenamePublicKey, string text) =>
     // Encrypt
     var pgp = new PGP(encryptionKeys);
     return await pgp.EncryptAsync(text);
-});
+}).DisableAntiforgery();
 
-app.MapPost("/PGPEncryptFromProtonEmail", async (string protonEmail, string text) =>
+app.MapPost("/PGPEncryptFromProtonEmail", async ([FromForm] string protonEmail, [FromForm] string text) =>
 {
     var publicKey = string.Empty;
     // download proton plubic key (source: https://proton.me/support/download-public-private-key)
@@ -63,6 +65,6 @@ app.MapPost("/PGPEncryptFromProtonEmail", async (string protonEmail, string text
     // Encrypt
     var pgp = new PGP(encryptionKeys);
     return await pgp.EncryptAsync(text);
-});
+}).DisableAntiforgery();
 
 app.Run();

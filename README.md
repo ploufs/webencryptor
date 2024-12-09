@@ -16,3 +16,6 @@ ASPNETCORE_HTTP_PORTS -> 8080
 ### api info
 openapi : http://localhost:8080/openapi/v1.json
 scalar: http://localhost:8080/scalar/v1
+
+## exemple
+curl https://localhost:8080/PGPEncrypt --request POST --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'filenamePublicKey={{publickey}}' --data-urlencode 'text={{text}}'
