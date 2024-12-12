@@ -1,6 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 using PgpCore;
 using Scalar.AspNetCore;
+using webencryptor;
+
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json")
+    .AddEnvironmentVariables()
+    .Build();
+
+// aller chercher les configuration de php dans appsettings
+var pgpConfig = configuration.GetRequiredSection("Pgp").Get<PgpConfig>();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +26,8 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
-
+// ajouter les configurations de Scalar
+builder.Services.AddOptions<ScalarOptions>().BindConfiguration("Scalar");
 
 var app = builder.Build();
 
@@ -25,30 +36,23 @@ app.MapOpenApi();
 
 // ajouter scalar (/scalar/v1)
 // source : https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md , https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/README.md)
-app.MapScalarApiReference(options =>
-{
-    options
-        .WithTitle("webencryptor")
-        .WithSidebar(true);
-});
+app.MapScalarApiReference();
 
 // redirect to scalar documentation
 app.MapGet("/", () => Results.Redirect("/scalar/v1"));
 
-app.MapPost("/PGPEncrypt", async ([FromForm]string filenamePublicKey, [FromForm] string text) =>
+app.MapPost("/PGPEncrypt", async ([FromForm] string filenamePublicKey, [FromForm] string text) =>
 {
     // Load keys
     var publicKeyFilename = Path.Combine("PGPPublicKey", filenamePublicKey);
-    if (!System.IO.File.Exists(publicKeyFilename))
-    {
-        throw new FileNotFoundException("publickey not found", publicKeyFilename);
-    }
+    if (!File.Exists(publicKeyFilename)) throw new FileNotFoundException("publickey not found", publicKeyFilename);
     var publicKey = File.ReadAllText(publicKeyFilename);
     var encryptionKeys = new EncryptionKeys(publicKey);
 
     // Encrypt
     var pgp = new PGP(encryptionKeys);
-    return await pgp.EncryptAsync(text);
+
+    return await pgp.EncryptAsync(text, headers: pgpConfig.Headers);
 }).DisableAntiforgery();
 
 app.MapPost("/PGPEncryptFromProtonEmail", async ([FromForm] string protonEmail, [FromForm] string text) =>
@@ -64,7 +68,7 @@ app.MapPost("/PGPEncryptFromProtonEmail", async ([FromForm] string protonEmail, 
 
     // Encrypt
     var pgp = new PGP(encryptionKeys);
-    return await pgp.EncryptAsync(text);
+    return await pgp.EncryptAsync(text, headers: pgpConfig.Headers);
 }).DisableAntiforgery();
 
 app.Run();
