@@ -13,7 +13,7 @@ ScalarEnabled -> true,false
 ### volume
 /app/PGPPublicKey -> pgp public key folder
 ### run image
-`docker run -d --name=webencryptor -e TZ=America/Toronto -p 8080:8080 -v C:\PGPPublicKey:/app/PGPPublicKey ploufs/webencryptor:latest`
+`docker run -d --name=webencryptor -e TZ=America/Toronto -e OpenApiEnabled=true -e ScalarEnabled=true -p 8080:8080 -v C:\PGPPublicKey:/app/PGPPublicKey ploufs/webencryptor:latest`
 
 ### api info
 openapi : http://localhost:8080/openapi/v1.json
